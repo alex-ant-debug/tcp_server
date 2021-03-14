@@ -44,7 +44,7 @@ void MyServer::slotReadClient()
 {
     QTcpSocket* pClientSocket = (QTcpSocket*)sender();
     QDataStream in(pClientSocket);
-    in.setVersion(QDataStream::Qt_4_2);
+    in.setVersion(QDataStream::Qt_5_9);
     for (;;) {
         if (!m_nNextBlockSize) {
             if (pClientSocket->bytesAvailable() < sizeof(quint16)) {
@@ -93,7 +93,7 @@ void MyServer::sendMessage(QTcpSocket* pSocket, const QString& str)
     QString messageType = "message";
     QByteArray  arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_2);
+    out.setVersion(QDataStream::Qt_5_9);
     out << quint16(0) << QTime::currentTime() << messageType <<str;
 
     out.device()->seek(0);
@@ -107,7 +107,7 @@ void MyServer::sendError(QTcpSocket* pSocket, const QString& str, int errorCode)
     QString messageType = "error";
     QByteArray  arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_2);
+    out.setVersion(QDataStream::Qt_5_9);
     out << quint16(0) << QTime::currentTime() << messageType <<errorCode<<str;
 
     out.device()->seek(0);
@@ -126,7 +126,7 @@ void MyServer::sendIncrementValue(QTcpSocket* pSocket, double valueToIncrement)
     QString messageType = "incremented_value";
     QByteArray  arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_2);
+    out.setVersion(QDataStream::Qt_5_9);
     out << quint16(0) << QTime::currentTime() <<messageType<< responseValues;
 
     out.device()->seek(0);
