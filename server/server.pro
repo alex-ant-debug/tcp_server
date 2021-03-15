@@ -33,3 +33,5 @@ HEADERS += \
 
 FORMS += \
         myserver.ui
+
+DISTFILES +=
