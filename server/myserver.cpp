@@ -119,7 +119,7 @@ void MyServer::sendError(QTcpSocket* pSocket, const QString& str, int errorCode)
 void MyServer::sendIncrementValue(QTcpSocket* pSocket, double valueToIncrement)
 {
     QVector<double> responseValues;
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 1000; i++)
     {
         responseValues.push_back(valueToIncrement+i);
     }
