@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    MyServer server("");
+    MyServer server;
     if(server.checkSettings())
     {
         server.show();

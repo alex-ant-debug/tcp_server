@@ -4,7 +4,7 @@
 #include <QMessageBox>
 
 
-MyServer::MyServer(QString settingsPath, QWidget *parent) :
+MyServer::MyServer(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MyServer),
     m_nNextBlockSize(0)
@@ -79,7 +79,7 @@ void MyServer::slotReadClient()
     }
 }
 
-/*virtual*/ void MyServer::slotNewConnection()
+void MyServer::slotNewConnection()
 {
     QTcpSocket* pClientSocket = m_ptcpServer->nextPendingConnection();
     connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));

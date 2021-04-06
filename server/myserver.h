@@ -25,12 +25,12 @@ class MyServer : public QWidget
     Q_OBJECT
 
 public:
-    explicit MyServer(QString settingsPath, QWidget *parent = 0);
+    explicit MyServer(QWidget *parent = 0);
     bool checkSettings(void);
     ~MyServer();
 
 public slots:
-    virtual void slotNewConnection();
+    void slotNewConnection();
             void slotReadClient();
 
 private:
