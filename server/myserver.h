@@ -31,13 +31,13 @@ public:
 
 public slots:
     void slotNewConnection();
-            void slotReadClient();
+    void slotReadClient();
 
 private:
     Ui::MyServer *ui;
-    QTcpServer* m_ptcpServer;
-    QTextEdit*  m_ptxt;
-    quint16     m_nNextBlockSize;
+    QTcpServer* tcpServer;
+    QTextEdit*  textEdit;
+    quint16     nextBlockSize;
     int port;
     bool isSettingsCorrect;
     const QString protocolVersion = "V1.0";
@@ -45,8 +45,6 @@ private:
     void sendError(QTcpSocket* pSocket, const QString& str, int errorCode);
     void sendIncrementValue(QTcpSocket* pSocket, double valueToIncrement);
     bool readSettings(void);
-
- private:
     enum errorCodes{
         errorVersion = 1,
     };

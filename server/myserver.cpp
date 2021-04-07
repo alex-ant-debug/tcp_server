@@ -1,43 +1,37 @@
 #include "myserver.h"
 #include "ui_myserver.h"
 #include <QFile>
-#include <QMessageBox>
 
 
 MyServer::MyServer(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MyServer),
-    m_nNextBlockSize(0)
+    nextBlockSize(0)
 {
+    ui->setupUi(this);
+    textEdit = new QTextEdit;
+    textEdit->setReadOnly(true);
+
+    //Layout setup
+    QVBoxLayout* pvbxLayout = new QVBoxLayout;
+    pvbxLayout->addWidget(new QLabel("<H1>Server</H1>"));
+    pvbxLayout->addWidget(textEdit);
+    setLayout(pvbxLayout);
+
     readSettings();
     if(!isSettingsCorrect)
     {
         return;
     }
-    ui->setupUi(this);
 
-    m_ptcpServer = new QTcpServer(this);
-    if (!m_ptcpServer->listen(QHostAddress::Any, port)) {
-        QMessageBox::critical(0,
-                              "Server Error",
-                              "Unable to start the server:"
-                              + m_ptcpServer->errorString()
-                             );
-        m_ptcpServer->close();
+
+    tcpServer = new QTcpServer(this);
+    if (!tcpServer->listen(QHostAddress::Any, port)) {
+        textEdit->append("Unable to start the server:" + tcpServer->errorString());
+        tcpServer->close();
         return;
     }
-    connect(m_ptcpServer, SIGNAL(newConnection()),
-            this,         SLOT(slotNewConnection())
-           );
-
-    m_ptxt = new QTextEdit;
-    m_ptxt->setReadOnly(true);
-
-    //Layout setup
-    QVBoxLayout* pvbxLayout = new QVBoxLayout;
-    pvbxLayout->addWidget(new QLabel("<H1>Server</H1>"));
-    pvbxLayout->addWidget(m_ptxt);
-    setLayout(pvbxLayout);
+    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 
 void MyServer::slotReadClient()
@@ -46,14 +40,14 @@ void MyServer::slotReadClient()
     QDataStream in(pClientSocket);
     in.setVersion(QDataStream::Qt_5_9);
     for (;;) {
-        if (!m_nNextBlockSize) {
+        if (!nextBlockSize) {
             if (pClientSocket->bytesAvailable() < sizeof(quint16)) {
                 break;
             }
-            in >> m_nNextBlockSize;
+            in >> nextBlockSize;
         }
 
-        if (pClientSocket->bytesAvailable() < m_nNextBlockSize) {
+        if (pClientSocket->bytesAvailable() < nextBlockSize) {
             break;
         }
         QTime   time;
@@ -73,15 +67,15 @@ void MyServer::slotReadClient()
 
         QString str = QString::number(valueToIncrement);
         QString strMessage = time.toString() + " " + version + " " + "Client has sended - " + str;
-        m_ptxt->append(strMessage);
+        textEdit->append(strMessage);
 
-        m_nNextBlockSize = 0;
+        nextBlockSize = 0;
     }
 }
 
 void MyServer::slotNewConnection()
 {
-    QTcpSocket* pClientSocket = m_ptcpServer->nextPendingConnection();
+    QTcpSocket* pClientSocket = tcpServer->nextPendingConnection();
     connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
     connect(pClientSocket, SIGNAL(readyRead()), this, SLOT(slotReadClient()));
 
@@ -142,9 +136,7 @@ bool MyServer::readSettings(void)
 
     if (!file.open(QIODevice::ReadOnly ))
     {
-        QMessageBox msgBox;
-        msgBox.setText("No settings file");
-        msgBox.exec();
+        textEdit->append("No settings file");
         return false;
     }
 
@@ -155,11 +147,9 @@ bool MyServer::readSettings(void)
 
     port = settings.toInt();
 
-    if (port <= 0)
+    if (port <= 0 || port > 65535)
     {
-        QMessageBox msgBox;
-        msgBox.setText("Port has wrong value");
-        msgBox.exec();
+        textEdit->append("Port has wrong value");
         return false;
     }
 
