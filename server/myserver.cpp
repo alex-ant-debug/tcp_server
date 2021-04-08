@@ -13,10 +13,11 @@ MyServer::MyServer(QWidget *parent) :
     textEdit->setReadOnly(true);
 
     //Layout setup
-    QVBoxLayout* pvbxLayout = new QVBoxLayout;
-    pvbxLayout->addWidget(new QLabel("<H1>Server</H1>"));
-    pvbxLayout->addWidget(textEdit);
-    setLayout(pvbxLayout);
+    layout = new QVBoxLayout;
+    label  = new QLabel("<H1>Server</H1>");
+    layout->addWidget(label);
+    layout->addWidget(textEdit);
+    setLayout(layout);
 
     readSettings();
     if(!isSettingsCorrect)
@@ -24,11 +25,10 @@ MyServer::MyServer(QWidget *parent) :
         return;
     }
 
-
     tcpServer = new QTcpServer(this);
-    if (!tcpServer->listen(QHostAddress::Any, port)) {
+    if(!tcpServer->listen(QHostAddress::Any, port))
+    {
         textEdit->append("Unable to start the server:" + tcpServer->errorString());
-        tcpServer->close();
         return;
     }
     connect(tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
@@ -36,7 +36,7 @@ MyServer::MyServer(QWidget *parent) :
 
 void MyServer::slotReadClient()
 {
-    QTcpSocket* pClientSocket = (QTcpSocket*)sender();
+    QTcpSocket* pClientSocket = dynamic_cast<QTcpSocket*> (sender());
     QDataStream in(pClientSocket);
     in.setVersion(QDataStream::Qt_5_9);
     for (;;) {
@@ -112,10 +112,10 @@ void MyServer::sendError(QTcpSocket* pSocket, const QString& str, int errorCode)
 
 void MyServer::sendIncrementValue(QTcpSocket* pSocket, double valueToIncrement)
 {
-    QVector<double> responseValues;
-    for(int i = 0; i < 1000; i++)
+    QVector<double> responseValues(sizeOfResponsArray);
+    for(int i = 0; i < sizeOfResponsArray; i++)
     {
-        responseValues.push_back(valueToIncrement+i);
+        responseValues[i] = valueToIncrement+i;
     }
     QString messageType = "incremented_value";
     QByteArray  arrBlock;
@@ -142,12 +142,11 @@ bool MyServer::readSettings(void)
 
     QTextStream stream(&file);
     QString settings = stream.readLine();
-    stream.flush();
     file.close();
 
     port = settings.toInt();
 
-    if (port <= 0 || port > 65535)
+    if (port <= 0 || port > maxSizePort)
     {
         textEdit->append("Port has wrong value");
         return false;
@@ -166,4 +165,8 @@ bool MyServer::checkSettings(void)
 MyServer::~MyServer()
 {
     delete ui;
+    delete textEdit;
+    delete label;
+    delete layout;
+    delete tcpServer;
 }
