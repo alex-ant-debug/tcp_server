@@ -37,13 +37,13 @@ private:
     Ui::MyServer *ui;
     QTcpServer* tcpServer;
     QTextEdit*  textEdit;
-    quint16     nextBlockSize;
+    quint32     nextBlockSize;
     QVBoxLayout* layout;
     QLabel *label;
     int port;
     const uint16_t maxSizePort = 65535;
     bool isSettingsCorrect;
-    const uint16_t sizeOfResponsArray = 1000;
+    const uint32_t sizeOfResponsArray = 1000000;
     const QString protocolVersion = "V1.0";
     void sendMessage(QTcpSocket* pSocket, const QString& str);
     void sendError(QTcpSocket* pSocket, const QString& str, int errorCode);
