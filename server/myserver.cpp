@@ -1,6 +1,7 @@
 #include "myserver.h"
 #include "ui_myserver.h"
 #include <QFile>
+#include <QDebug>
 
 
 MyServer::MyServer(QWidget *parent) :
@@ -53,17 +54,23 @@ void MyServer::slotReadClient()
         QTime   time;
         double valueToIncrement;
         QString version;
-        in >> version >> time >> valueToIncrement;
+        in >> version;
 
-        if(version != protocolVersion)
+        if((version != protocolVersion))
         {
             QString errorMessage = "Client has wrong version, curent version is " + protocolVersion;
             sendError(pClientSocket, errorMessage, errorVersion);
         }
-        else
+        else if(nextBlockSize - 8 - sizeof(version) != sizeof(time) + sizeof(double)){
+            QString errorMessage = "Not enough size packet for reading  all variables";//"Не достаточно размера пакета для чтения всех переменных";
+            sendError(pClientSocket, errorMessage, errorVersion);
+        } else
         {
+            in >> time >> valueToIncrement;
             sendIncrementValue(pClientSocket, valueToIncrement);
         }
+
+
 
         QString str = QString::number(valueToIncrement);
         QString strMessage = time.toString() + " " + version + " " + "Client has sended - " + str;
