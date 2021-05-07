@@ -54,7 +54,7 @@ void MyServer::slotReadClient()
         QTime   time;
         double valueToIncrement;
         QString version;
-        in >> version;
+        in >> version >> time >> valueToIncrement;;
 
         if((version != protocolVersion))
         {
@@ -62,15 +62,12 @@ void MyServer::slotReadClient()
             sendError(pClientSocket, errorMessage, errorVersion);
         }
         else if(nextBlockSize - 8 - sizeof(version) != sizeof(time) + sizeof(double)){
-            QString errorMessage = "Not enough size packet for reading  all variables";//"Не достаточно размера пакета для чтения всех переменных";
+            QString errorMessage = "Not enough size packet for reading  all variables";
             sendError(pClientSocket, errorMessage, errorVersion);
         } else
         {
-            in >> time >> valueToIncrement;
             sendIncrementValue(pClientSocket, valueToIncrement);
         }
-
-
 
         QString str = QString::number(valueToIncrement);
         QString strMessage = time.toString() + " " + version + " " + "Client has sended - " + str;
